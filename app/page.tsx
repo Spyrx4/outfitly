@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createServerClient } from '@/lib/supabase'
 import ProductCatalog from '@/components/ProductCatalog'
 import { Product } from '@/components/ProductCard'
 
@@ -6,7 +6,7 @@ import { Product } from '@/components/ProductCard'
 export const dynamic = 'force-dynamic'
 
 async function getProducts(): Promise<Product[]> {
-  const supabase = await createServerSupabaseClient()
+  const supabase = createServerClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
