@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase'
 import ProductCatalog from '@/components/ProductCatalog'
 import { Product } from '@/components/ProductCard'
 
-// ISR: halaman di-cache 60 detik, tidak perlu fetch ulang tiap pengunjung
-export const revalidate = 60
+// SSR: render di server saat request, di-cache oleh Vercel CDN
+// Jauh lebih ringan dari client-side fetch — pengunjung tidak perlu tunggu Supabase
+export const dynamic = 'force-dynamic'
 
 async function getProducts(): Promise<Product[]> {
   const supabase = createClient()
@@ -26,7 +27,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Section */}
+      {/* Hero Section — pure HTML, no JS needed */}
       <section className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full" />
@@ -42,16 +43,13 @@ export default async function HomePage() {
             <br />
             <span className="text-amber-100">Terbaik di Shopee</span>
           </h1>
-          <p className="text-orange-100 text-lg sm:text-xl max-w-2xl mx-auto mb-8">
+          <p className="text-orange-100 text-lg sm:text-xl max-w-2xl mx-auto">
             Koleksi produk pilihan tangan dengan kualitas terjamin. Klik, dan langsung dapatkan di Shopee!
           </p>
-
-          {/* Search bar — rendered inside client component below */}
-          <ProductCatalog products={products} categories={categories} searchBarOnly />
         </div>
       </section>
 
-      {/* Stats Bar */}
+      {/* Stats Bar — pure HTML */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-center gap-8 text-center">
           <div>
@@ -71,7 +69,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Catalog + Search + Filter — all in one client component */}
+      {/* Catalog: search + filter + grid — satu-satunya bagian yang butuh JS */}
       <ProductCatalog products={products} categories={categories} />
     </>
   )
