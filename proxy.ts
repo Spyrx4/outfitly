@@ -1,17 +1,15 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
 
-  // Guard: jika env vars tidak ada, skip middleware (hindari crash)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    // Jika env vars tidak ada, redirect /admin/* (kecuali login) ke login
     if (
       request.nextUrl.pathname.startsWith('/admin') &&
       !request.nextUrl.pathname.startsWith('/admin/login')
@@ -32,9 +30,7 @@ export async function middleware(request: NextRequest) {
         cookiesToSet.forEach(({ name, value }) =>
           request.cookies.set(name, value)
         )
-        supabaseResponse = NextResponse.next({
-          request,
-        })
+        supabaseResponse = NextResponse.next({ request })
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, options)
         )
@@ -42,7 +38,6 @@ export async function middleware(request: NextRequest) {
     },
   })
 
-  // Refresh session — JANGAN hapus ini
   const {
     data: { user },
   } = await supabase.auth.getUser()
