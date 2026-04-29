@@ -1,4 +1,3 @@
-import { createServerClient } from '@/lib/supabase'
 import ProductCatalog from '@/components/ProductCatalog'
 import { Product } from '@/components/ProductCard'
 
@@ -6,27 +5,31 @@ import { Product } from '@/components/ProductCard'
 export const dynamic = 'force-dynamic'
 
 async function getProducts(): Promise<Product[]> {
-  const supabase = createServerClient()
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false })
+  try {
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/products?order=created_at.desc`
+    const res = await fetch(url, {
+      headers: {
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+      },
+      cache: 'no-store',
+    })
 
-  if (error) {
-    console.error('Error fetching products:', error)
+    if (!res.ok) return []
+    return res.json()
+  } catch {
     return []
   }
-  return data as Product[]
 }
 
 export default async function HomePage() {
   const products = await getProducts()
-  const cats = products.map((p) => p.category).filter(Boolean)
+  const cats = products.map((p: Product) => p.category).filter(Boolean)
   const categories = ['Semua', ...Array.from(new Set(cats))]
 
   return (
     <>
-      {/* Hero Section — pure HTML, no JS needed */}
+      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full" />
@@ -48,7 +51,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Stats Bar — pure HTML */}
+      {/* Stats Bar */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-center gap-8 text-center">
           <div>
@@ -68,7 +71,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Catalog: search + filter + grid — satu-satunya bagian yang butuh JS */}
+      {/* Catalog + Search + Filter */}
       <ProductCatalog products={products} categories={categories} />
     </>
   )
