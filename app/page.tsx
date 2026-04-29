@@ -1,13 +1,12 @@
-import { createClient } from '@/lib/supabase'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 import ProductCatalog from '@/components/ProductCatalog'
 import { Product } from '@/components/ProductCard'
 
-// SSR: render di server saat request, di-cache oleh Vercel CDN
-// Jauh lebih ringan dari client-side fetch — pengunjung tidak perlu tunggu Supabase
+// SSR: render di server saat request
 export const dynamic = 'force-dynamic'
 
 async function getProducts(): Promise<Product[]> {
-  const supabase = createClient()
+  const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from('products')
     .select('*')
