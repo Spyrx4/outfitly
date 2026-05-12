@@ -255,13 +255,21 @@ export default function AdminDashboardPage() {
                         {new Date(product.created_at).toLocaleDateString('id-ID')}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => handleDelete(product.id, product.image_url)}
-                          disabled={deleting === product.id}
-                          className="text-xs text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
-                        >
-                          {deleting === product.id ? 'Menghapus...' : 'Hapus'}
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/edit-product/${product.id}`}
+                            className="text-xs text-blue-500 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-200 px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            Edit
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(product.id, product.image_url)}
+                            disabled={deleting === product.id}
+                            className="text-xs text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                          >
+                            {deleting === product.id ? 'Menghapus...' : 'Hapus'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
